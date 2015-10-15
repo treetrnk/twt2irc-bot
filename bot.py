@@ -1,7 +1,9 @@
 import sys
 import socket
 import string
-import logging
+import HTMLParser
+from pattern.web import Twitter
+import time
 
 ##############
 #   CONFIG   #
@@ -27,6 +29,17 @@ irc.send("USER %s %s %s :%s \r\n" % (nick, nick, nick, realname))
 for chan in chanlist:
   irc.send("JOIN %s \r\n" % chan)
 
+h = HTMLParser.HTMLParser()
+
+def get_tweets(irc):
+    s = Twitter().stream('#fail')
+    for i in range(10):
+        time.sleep(3)
+        s.update(bytes=1024)
+        if s:
+            tweets = h.unescape(s[-1].text)
+            irc.send(tweets+"\r\n")
+
 # Main loop
 while True:
   
@@ -35,3 +48,5 @@ while True:
   if data.find('PING') != -1:
     irc.send('PONG ' + data.split() [1] + '\r\n')
   print data
+
+  get_tweets(irc)
