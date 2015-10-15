@@ -1,7 +1,6 @@
 import sys
 import socket
 import string
-import HTMLParser
 from pattern.web import Twitter
 import time
 
@@ -10,9 +9,7 @@ import time
 ##############
 
 host = 'irc.freenode.net'
-chanlist = [
-  '#twitterrealybottest'
-  ]
+chan = '#twitterrealybottest'
 
 nick = 'TwitterRelayBot'
 realname = "Twitter Relay bot, owned by treetrunk"
@@ -26,10 +23,8 @@ irc.connect((host, port))
 irc.send("PASS %s \r\n" % passwd)
 irc.send("NICK %s \r\n" % nick)
 irc.send("USER %s %s %s :%s \r\n" % (nick, nick, nick, realname))
-for chan in chanlist:
-  irc.send("JOIN %s \r\n" % chan)
+irc.send("JOIN %s \r\n" % chan)
 
-h = HTMLParser.HTMLParser()
 
 def get_tweets(irc):
     s = Twitter().stream('#fail')
@@ -37,8 +32,9 @@ def get_tweets(irc):
         time.sleep(3)
         s.update(bytes=1024)
         if s:
-            tweets = h.unescape(s[-1].text)
-            irc.send(tweets+"\r\n")
+            tweets = s[-1].text
+            tweets = tweets.encode('ascii', errors='ignore')
+            return tweets
 
 # Main loop
 while True:
@@ -49,4 +45,8 @@ while True:
     irc.send('PONG ' + data.split() [1] + '\r\n')
   print data
 
-  get_tweets(irc)
+  tweet = get_tweets(irc)
+  old_tweet = ""
+  if tweet != old_tweet:
+    old_tweet = tweet
+    irc.send("PRIVMSG %s : %s \r\n" % (chan, old_tweet))
