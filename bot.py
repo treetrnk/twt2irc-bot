@@ -1,7 +1,8 @@
 import sys
 import socket
 import string
-from pattern.web import Twitter
+import urllib2
+import re
 import time
 
 ##############
@@ -16,6 +17,7 @@ realname = "Twitter Relay bot, owned by treetrunk"
 passwd = 'twitterbot'
 port = 6667
 owner = 'treetrunk'
+tweeter = 'username'
 
 # Connect to server and set nick
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,16 +27,33 @@ irc.send("NICK %s \r\n" % nick)
 irc.send("USER %s %s %s :%s \r\n" % (nick, nick, nick, realname))
 irc.send("JOIN %s \r\n" % chan)
 
+def get_tweets(tweeter):
+  
+  time.sleep(5)
+  page = urllib2.urlopen('https://twitter.com/'+ tweeter).read()
+  lines = page.split("\n")
+  tweets = []
 
-def get_tweets(irc):
-    s = Twitter().stream('#fail')
-    for i in range(10):
-        time.sleep(3)
-        s.update(bytes=1024)
-        if s:
-            tweets = s[-1].text
-            tweets = tweets.encode('ascii', errors='ignore')
-            return tweets
+  for line in lines:
+
+    if line.find('<p class="TweetTextSize TweetTextSize--26px js-tweet-text tweet-text" lang="en" data-aria-label-part="0">') != -1:
+      
+      words = line.split()
+
+      for word in words:
+        if word.find('http://t.co/') != -1:
+          url_text = word.split('"')
+          url = url_text[1]
+
+      no_html = re.compile(r'<[^>]+>')
+      line = line.encode('ascii', errors='ignore')
+      tweet = no_html.sub('', line)
+      tweet = " ".join(tweet.split())
+      tweets.append({"text":tweet, "url":url})
+  
+  return tweets
+
+old_tweet = ""
 
 # Main loop
 while True:
@@ -45,8 +64,8 @@ while True:
     irc.send('PONG ' + data.split() [1] + '\r\n')
   print data
 
-  tweet = get_tweets(irc)
-  old_tweet = ""
-  if tweet != old_tweet:
-    old_tweet = tweet
-    irc.send("PRIVMSG %s : %s \r\n" % (chan, old_tweet))
+  tweets = get_tweets(tweeter)
+  if tweets[0]['text'] != old_tweet:
+    old_tweet = tweets[0]['text']
+    irc.send("PRIVMSG %s : *** Tweet from @%s *** %s -- LINK: %s \r\n" % (chan, tweeter, tweets[0]['text'], tweets[0]['url']))
+    print "*** Tweet from @%s *** %s -- LINK: %s \r\n" % (tweeter, tweets[0]['text'], tweets[0]['url'])
