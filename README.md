@@ -1,1 +1,1 @@
-# twitter_relay_bot
+# tweet2irc_bot
