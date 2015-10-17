@@ -4,6 +4,7 @@ import string
 import urllib2
 import re
 import time
+from datetime import datetime
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -27,6 +28,8 @@ tweeters = [
   'barackobama',
   'twitter',
   'cnn',
+  'wol_lay',
+  'pix_xie',
   'foxnews'
 ]
 
@@ -47,6 +50,26 @@ irc.send("PASS %s \r\n" % passwd)
 irc.send("NICK %s \r\n" % nick)
 irc.send("USER %s %s %s :%s, owned by %s \r\n" % (nick, nick, nick, realname, owner))
 irc.send("JOIN %s \r\n" % chan)
+
+
+def print_tweet(tweets, old_tweets, tweeter):
+  time.sleep(1)
+  if tweeter in old_tweets:
+    if old_tweets[tweeter] != tweets[tweeter]:
+      irc.send("PRIVMSG %s : \x03%s@%s\x03 --- %s --- LINK: %s \r\n" % (
+        chan,  
+        tweeter_color,
+        tweeter, 
+        tweets[tweeter]['text'], 
+        tweets[tweeter]['url']))
+      print "%s >>> @%s --- %s --- LINK: %s \r\n" % (
+        curr_time, 
+        tweeter, 
+        tweets[tweeter]['text'], 
+        tweets[tweeter]['url'])
+  old_tweets[tweeter] = tweets[tweeter]
+  return old_tweets
+    
 
 def get_tweets(tweeters):
   
@@ -87,6 +110,8 @@ old_tweets = {}
 
 # Main loop
 while True:
+    
+  curr_time = datetime.fromtimestamp(time.time()).strftime('%m/%d | %H:%M')
   
   data = irc.recv (4096)
   if data.find('PING') != -1:
@@ -95,16 +120,15 @@ while True:
   tweets = get_tweets(tweeters)
 
   for tweeter in tweeters:
-    if tweeter in old_tweets:
-      if old_tweets[tweeter] != tweets[tweeter]:
+    old_tweets = print_tweet(tweets, old_tweets, tweeter)
+    old_tweets[tweeter] = tweets[tweeter]
+  
+  if data.find('!previous') != -1:
+      for tweeter in old_tweets:
         irc.send("PRIVMSG %s : \x03%s@%s\x03 --- %s --- LINK: %s \r\n" % (
           chan,  
           tweeter_color,
           tweeter, 
-          tweets[tweeter]['text'], 
-          tweets[tweeter]['url']))
-        print "@%s --- %s --- LINK: %s \r\n" % (tweeter, tweets[tweeter]['text'], tweets[tweeter]['url'])
-    
-    old_tweets[tweeter] = tweets[tweeter]
-  
-  time.sleep(15)
+          old_tweets[tweeter]['text'], 
+          old_tweets[tweeter]['url']))
+
