@@ -162,7 +162,7 @@ while True:
   data = irc.recv (4096)
   if data.find('PING') != -1:
     irc.send('PONG ' + data.split() [1] + '\r\n')
-  print curr_time + " " + data
+  print curr_time + " >>> " + data
 
   # Get tweets from each user
   tweets = get_tweets(tweeters)
