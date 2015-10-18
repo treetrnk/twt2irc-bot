@@ -44,13 +44,13 @@ sys.setdefaultencoding('utf-8')
 
 host = 'irc.freenode.net'
 chan = '#twt2irc-bottest'
+port = 6667
 
 nick = 'twt2irc-bot'
-realname = "twt2irc-bot"
 passwd = 'twt2irc-bot'
-port = 6667
+realname = "twt2irc-bot"
 owner = 'treetrunk'
-email = 'email@wmail.com'
+
 tweeter_color = '11';
 tweeters = [
   'youtube',
@@ -81,7 +81,7 @@ irc.send("PASS %s \r\n" % passwd)
 irc.send("NICK %s \r\n" % nick)
 irc.send("USER %s %s %s :%s, owned by %s \r\n" % (nick, nick, nick, realname, owner))
 irc.send("JOIN %s \r\n" % chan)
-irc.send("MSG nickserv %s %s" % (passwd, email))
+irc.send("MSG nickserv %s %s" % (nick, passwd))
 
 
 # Print individual tweets to console and IRC
