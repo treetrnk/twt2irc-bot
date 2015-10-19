@@ -131,6 +131,7 @@ def get_tweets(tweeters):
           ) != -1:
 
           # Find URL to specific tweet
+          url = "https://twitter.com/"+tweeter+"/with_replies"
           words = line.split()
           for word in words:
             if word.find('http://t.co/') != -1:
@@ -188,9 +189,9 @@ while True:
 
 
   if data.find("!"+nick) != -1:
-    msg = "Hello! I am "+nick+". My job is to relay tweets from various "
-    msg += "twitter accounts to this IRC channel. Here is a list of my "
-    msg += "available commands:"
+    msg = "Hello! My job is to relay tweets from various "
+    msg += "twitter accounts to this IRC channel and my owner is "+owner+". "
+    msg += "Here is a list of my available commands:"
     cmds = {
         "!"+nick: "Display this informational text",
         "!last tweet": "Display the last tweet for each account",
