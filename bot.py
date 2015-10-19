@@ -189,8 +189,8 @@ while True:
 
 
   if data.find("!"+nick) != -1:
-    msg = "Hello! My job is to relay tweets from various "
-    msg += "twitter accounts to this IRC channel and my owner is "+owner+". "
+    msg = "Hello! "+owner+" has given me the job of relaying tweets "
+    msg += "from various twitter accounts to this IRC channel. "
     msg += "Here is a list of my available commands:"
     cmds = {
         "!"+nick: "Display this informational text",
