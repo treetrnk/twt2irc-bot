@@ -79,7 +79,8 @@ irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 irc.connect((host, port))
 irc.send("PASS %s \r\n" % passwd)
 irc.send("NICK %s \r\n" % nick)
-irc.send("USER %s %s %s :%s, owned by %s \r\n" % (nick, nick, nick, realname, owner))
+irc.send("USER %s %s %s :%s, owned by %s \r\n" % (
+  nick, nick, nick, realname, owner))
 irc.send("JOIN %s \r\n" % chan)
 irc.send("MSG nickserv %s %s \r\n" % (nick, passwd))
 
@@ -114,7 +115,8 @@ def get_tweets(tweeters):
   for tweeter in tweeters:
     
     # Grab twitter page
-    page = urllib2.urlopen('https://twitter.com/'+ tweeter).read()
+    page = urllib2.urlopen('https://twitter.com/'
+      + tweeter + '/with_replies').read()
     if page.find("js-pinned") != -1:
       pinned = True
     else:
@@ -124,7 +126,9 @@ def get_tweets(tweeters):
     # Find tweets
     for line in lines:
       if stop != tweeter:
-        if line.find('js-tweet-text tweet-text" lang="en" data-aria-label-part="0">') != -1:
+        if line.find(
+          'js-tweet-text tweet-text" lang="en" data-aria-label-part="0">'
+          ) != -1:
 
           # Find URL to specific tweet
           words = line.split()
@@ -181,4 +185,5 @@ while True:
         tweeter, 
         old_tweets[tweeter]['text'], 
         old_tweets[tweeter]['url']))
+
 
