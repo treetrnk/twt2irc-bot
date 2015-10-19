@@ -87,7 +87,7 @@ irc.send("MSG nickserv %s %s \r\n" % (nick, passwd))
 
 # Print individual tweets to console and IRC
 def print_tweet(tweets, old_tweets, tweeter):
-  time.sleep(1)
+  time.sleep(0.3)
   if tweeter in old_tweets:
     if old_tweets[tweeter] != tweets[tweeter]:
       irc.send("PRIVMSG %s : \x03%s@%s\x03 --- %s --- LINK: %s \r\n" % (
@@ -187,3 +187,26 @@ while True:
         old_tweets[tweeter]['url']))
 
 
+  if data.find("!"+nick) != -1:
+    msg = "Hello! I am "+nick+". My job is to relay tweets from various "
+    msg += "twitter accounts to this IRC channel. Here is a list of my "
+    msg += "available commands:"
+    cmds = {
+        "!"+nick: "Display this informational text",
+        "!last tweet": "Display the last tweet for each account",
+        "!tweeters": "Display all twitter accounts being tracked", 
+      }
+
+    irc.send("PRIVMSG %s : %s \r\n" % (chan, msg))
+    for key in cmds:
+      irc.send("PRIVMSG %s :     %s:     %s\r\n" % (chan, key, cmds[key]))
+
+  if data.find("!tweeters") != -1:
+    count = 0
+    for tweeter in tweeters:
+      if count == 0:
+        users = "@"+tweeter
+      else:
+        users = users + ", @" + tweeter
+      count += 1
+    irc.send("PRIVMSG %s : Tracked Tweeters: %s \r\n" % (chan, users)) 
