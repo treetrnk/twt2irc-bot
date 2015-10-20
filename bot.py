@@ -34,34 +34,10 @@ import string
 import urllib2
 import re
 import time
+import config as c
 from datetime import datetime
 reload(sys)
 sys.setdefaultencoding('utf-8')
-
-##############
-#   CONFIG   #
-##############
-
-host = 'irc.freenode.net'
-chan = '#twt2irc-bottest'
-port = 6667
-
-nick = 'twt2irc-bot'
-passwd = 'twt2irc-bot'
-realname = "twt2irc-bot"
-owner = 'treetrunk'
-
-tweeter_color = '11';
-tweeters = [
-  'youtube',
-  'justinbieber',
-  'katyperry',
-  'twitter',
-  'cnn',
-  'foxnews'
-]
-
-# End config
 
 print "  __         __    ___    _                 __        __ "
 print " / /__    __/ /_  |_  |  (_)_______  ____  / /  ___  / /_"
@@ -73,13 +49,13 @@ print "========================================================="
 
 # Connect to server and set nick
 irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-irc.connect((host, port))
-irc.send("PASS %s \r\n" % passwd)
-irc.send("NICK %s \r\n" % nick)
+irc.connect((c.host, c.port))
+irc.send("PASS %s \r\n" % c.passwd)
+irc.send("NICK %s \r\n" % c.nick)
 irc.send("USER %s %s %s :%s, owned by %s \r\n" % (
-  nick, nick, nick, realname, owner))
-irc.send("JOIN %s \r\n" % chan)
-irc.send("MSG nickserv %s %s \r\n" % (nick, passwd))
+  c.nick, c.nick, c.nick, c.realname, c.owner))
+irc.send("JOIN %s \r\n" % c.chan)
+irc.send("MSG nickserv %s %s \r\n" % (c.nick, c.passwd))
 
 
 # Print individual tweets to console and IRC
@@ -88,7 +64,7 @@ def print_tweet(tweets, old_tweets, tweeter):
   if tweeter in old_tweets:
     if old_tweets[tweeter] != tweets[tweeter]:
       irc.send("PRIVMSG %s : \x03%s@%s\x03 --- %s --- LINK: %s \r\n" % (
-        chan,  
+        c.chan,  
         tweeter_color,
         tweeter, 
         tweets[tweeter]['text'], 
@@ -158,55 +134,62 @@ old_tweets = {}
 
 # Main loop
 while True:
-    
+
+
   # Find the current time for timestamps
   curr_time = datetime.fromtimestamp(time.time()).strftime('%m/%d | %H:%M')
-  
+
+
   # Talk to server if pinged
   data = irc.recv (4096)
   if data.find('PING') != -1:
     irc.send('PONG ' + data.split() [1] + '\r\n')
   print curr_time + " >>> " + data
 
+
   # Get tweets from each user
-  tweets = get_tweets(tweeters)
+  tweets = get_tweets(c.tweeters)
+
 
   # Print tweets if new and replace precious tweets
-  for tweeter in tweeters:
+  for tweeter in c.tweeters:
     old_tweets = print_tweet(tweets, old_tweets, tweeter)
     old_tweets[tweeter] = tweets[tweeter]
   
+
   # !LAST TWEET cmd - Print previous tweets from each tweeter
   if data.find('!last tweet') != -1:
     for tweeter in old_tweets:
       irc.send("PRIVMSG %s : \x03%s@%s\x03 --- %s --- LINK: %s \r\n" % (
-        chan,  
-        tweeter_color,
+        c.chan,  
+        c.tweeter_color,
         tweeter, 
         old_tweets[tweeter]['text'], 
         old_tweets[tweeter]['url']))
 
 
-  if data.find("!"+nick) != -1:
-    msg = "Hello! "+owner+" has given me the job of relaying tweets "
+  # !BOT NAME cmd - Print owner and available commands
+  if data.find("!"+c.nick) != -1:
+    msg = "Hello! "+c.owner+" has given me the job of relaying tweets "
     msg += "from various twitter accounts to this IRC channel. "
     msg += "Here is a list of my available commands:"
     cmds = {
-        "!"+nick: "Display this informational text",
+        "!"+c.nick: "Display this informational text",
         "!last tweet": "Display the last tweet for each account",
         "!tweeters": "Display all twitter accounts being tracked", 
       }
-
-    irc.send("PRIVMSG %s : %s \r\n" % (chan, msg))
+    irc.send("PRIVMSG %s : %s \r\n" % (c.chan, msg))
     for key in cmds:
-      irc.send("PRIVMSG %s :     %s:     %s\r\n" % (chan, key, cmds[key]))
+      irc.send("PRIVMSG %s :     %s:     %s\r\n" % (c.chan, key, cmds[key]))
 
+
+  # !TWEETERS cmd - Print tracked twitter accounts
   if data.find("!tweeters") != -1:
     count = 0
-    for tweeter in tweeters:
+    for tweeter in c.tweeters:
       if count == 0:
         users = "@"+tweeter
       else:
         users = users + ", @" + tweeter
       count += 1
-    irc.send("PRIVMSG %s : Tracked Tweeters: %s \r\n" % (chan, users)) 
+    irc.send("PRIVMSG %s : Tracked Tweeters: %s \r\n" % (c.chan, users)) 
