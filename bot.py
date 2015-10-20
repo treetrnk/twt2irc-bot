@@ -142,6 +142,8 @@ def get_tweets(tweeters):
           no_html = re.compile(r'<[^>]+>')
           tweet = no_html.sub('', line)
           tweet = " ".join(tweet.split())
+          tweet = tweet.replace("&#39;", "\'")
+          tweet = tweet.replace("&nbsp;", " ")
 
           tweets[tweeter] = {"text":tweet, "url":url}
 
