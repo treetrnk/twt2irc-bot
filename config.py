@@ -35,14 +35,14 @@ chan = '#twt2irc-bottest'
 port = 6667
 
 # Bot Settings
-nick = 'twt2irc-bot'
+nick = 'twt2irc-bot'  # Don't forget to register your nick first
 passwd = 'twt2irc-bot'
 realname = "twt2irc-bot"
 owner = 'treetrunk'
 
 # Twitter Settings
-tweeter_color = '11';
-tweeters = [
+tweeter_color = '11' # https://github.com/treetrunk/twt2irc-bot/wiki/IRC-Colors
+tweeters = [         # All twitter accounts to be tracked
   'youtube',
   'justinbieber',
   'katyperry',
