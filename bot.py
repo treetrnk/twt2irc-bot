@@ -56,11 +56,8 @@ tweeters = [
   'youtube',
   'justinbieber',
   'katyperry',
-  'barackobama',
   'twitter',
   'cnn',
-  'wol_lay',
-  'pix_xie',
   'foxnews'
 ]
 
