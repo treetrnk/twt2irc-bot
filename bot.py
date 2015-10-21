@@ -117,6 +117,8 @@ def get_tweets(tweeters):
           tweet = " ".join(tweet.split())
           tweet = tweet.replace("&#39;", "\'")
           tweet = tweet.replace("&nbsp;", " ")
+          tweet = tweet.replace("&#10;", " ")
+          tweet = tweet.replace("&amp;", "&")
 
           tweets[tweeter] = {"text":tweet, "url":url}
 
