@@ -65,7 +65,7 @@ def print_tweet(tweets, old_tweets, tweeter):
     if old_tweets[tweeter] != tweets[tweeter]:
       irc.send("PRIVMSG %s : \x03%s@%s\x03 --- %s --- LINK: %s \r\n" % (
         c.chan,  
-        tweeter_color,
+        c.tweeter_color,
         tweeter, 
         tweets[tweeter]['text'], 
         tweets[tweeter]['url']))
