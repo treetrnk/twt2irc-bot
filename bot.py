@@ -55,7 +55,6 @@ irc.send("NICK %s \r\n" % c.nick)
 irc.send("USER %s %s %s :%s, owned by %s \r\n" % (
   c.nick, c.nick, c.nick, c.realname, c.owner))
 irc.send("JOIN %s \r\n" % c.chan)
-irc.send("MSG nickserv %s %s \r\n" % (c.nick, c.passwd))
 
 
 # Print individual tweets to console and IRC
